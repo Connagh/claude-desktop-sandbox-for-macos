@@ -1,8 +1,8 @@
 # Claude Desktop Sandbox for macOS
 
-The Claude Desktop app — and any MCP servers it runs — can read and write every file in your home folder. Your SSH keys, browser data, passwords, documents, everything is accessible.
+Claude Desktop, and any MCP servers it runs, has access to your home folder by default. It has its own permission prompts, but those guardrails live inside the app itself. If a prompt injection were to bypass them, there's no second layer to fall back on.
 
-Claude Desktop has its own permission prompts, but those guardrails live inside the app — if a prompt injection bypasses them, there's nothing stopping it. This tool adds a layer underneath, at the operating system level, using Apple's built-in sandbox. Even if Claude or an MCP server is tricked, macOS itself blocks the access. The app can **only** work inside a single folder: `~/Claude-Sandbox`. The rest of your system is blocked. You launch it by running `cd-seatbelt` in your terminal instead of opening Claude from your Dock.
+This tool adds that second layer, at the operating system level, using Apple's built-in sandbox. Even if Claude or an MCP server is tricked, macOS itself blocks the access. The app can **only** work inside a single folder: `~/Claude-Sandbox`. The rest of your system is off limits. You launch it by running `cd-seatbelt` in your terminal instead of opening Claude from your Dock.
 
 > **You must always launch Claude Desktop from the terminal using `cd-seatbelt`.** If you open it from Finder, the Dock, or Spotlight, the sandbox is not active and your files are not protected.
 
