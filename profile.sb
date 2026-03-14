@@ -1,0 +1,79 @@
+(version 1)
+
+;; Claude Desktop Sandbox Profile
+;; Blocks all home directory access, then re-allows only ~/Claude-Sandbox
+;; and paths Claude Desktop needs to run. See README for details.
+
+(allow default)
+
+;; --- block home directory access ---
+(deny file-read* (subpath (param "HOME")))
+(deny file-write* (subpath (param "HOME")))
+
+;; --- reads: sandbox workspace + app data ---
+(allow file-read*
+  ;; workspace
+  (subpath (string-append (param "HOME") "/Claude-Sandbox"))
+  ;; claude config
+  (subpath (string-append (param "HOME") "/.claude"))
+  (subpath (string-append (param "HOME") "/.config"))
+  (literal (string-append (param "HOME") "/.claude.json"))
+  (literal (string-append (param "HOME") "/.claude.json.lock"))
+  ;; electron / app support
+  (subpath (string-append (param "HOME") "/Library/Application Support/Claude"))
+  (subpath (string-append (param "HOME") "/Library/Application Support/Electron"))
+  ;; caches
+  (subpath (string-append (param "HOME") "/Library/Caches/Claude"))
+  (subpath (string-append (param "HOME") "/Library/Caches/com.anthropic.claude"))
+  (subpath (string-append (param "HOME") "/Library/Caches/com.anthropic.claude.ShipIt"))
+  (subpath (string-append (param "HOME") "/Library/Caches/com.anthropic.claudefordesktop"))
+  (subpath (string-append (param "HOME") "/Library/Caches/com.anthropic.claudefordesktop.ShipIt"))
+  ;; logs, saved state, http storage
+  (subpath (string-append (param "HOME") "/Library/Logs/Claude"))
+  (subpath (string-append (param "HOME") "/Library/Saved Application State/com.anthropic.claude.savedState"))
+  (subpath (string-append (param "HOME") "/Library/HTTPStorages/com.anthropic.claude"))
+  (subpath (string-append (param "HOME") "/Library/HTTPStorages/com.anthropic.claudefordesktop"))
+  ;; preferences, keychain, containers
+  (subpath (string-append (param "HOME") "/Library/Preferences"))
+  (subpath (string-append (param "HOME") "/Library/Keychains"))
+  (subpath (string-append (param "HOME") "/Library/Containers/com.anthropic.claude"))
+  (subpath (string-append (param "HOME") "/Library/Group Containers"))
+  ;; git config
+  (literal (string-append (param "HOME") "/.gitconfig"))
+)
+
+;; --- home directory metadata (Electron startup) ---
+(allow file-read-data (literal (param "HOME")))
+(allow file-read-metadata
+  (literal (param "HOME"))
+  (literal (string-append (param "HOME") "/Library"))
+  (literal (string-append (param "HOME") "/Library/Caches"))
+  (literal (string-append (param "HOME") "/Library/Application Support"))
+)
+
+;; --- writes: sandbox workspace + app data ---
+(allow file-write*
+  (subpath (string-append (param "HOME") "/Claude-Sandbox"))
+  (subpath (string-append (param "HOME") "/.claude"))
+  (subpath (string-append (param "HOME") "/.config"))
+  (literal (string-append (param "HOME") "/.claude.json"))
+  (literal (string-append (param "HOME") "/.claude.json.lock"))
+  (subpath (string-append (param "HOME") "/Library/Application Support/Claude"))
+  (subpath (string-append (param "HOME") "/Library/Application Support/Electron"))
+  (subpath (string-append (param "HOME") "/Library/Caches/Claude"))
+  (subpath (string-append (param "HOME") "/Library/Caches/com.anthropic.claude"))
+  (subpath (string-append (param "HOME") "/Library/Caches/com.anthropic.claude.ShipIt"))
+  (subpath (string-append (param "HOME") "/Library/Caches/com.anthropic.claudefordesktop"))
+  (subpath (string-append (param "HOME") "/Library/Caches/com.anthropic.claudefordesktop.ShipIt"))
+  (subpath (string-append (param "HOME") "/Library/Preferences"))
+  (subpath (string-append (param "HOME") "/Library/Logs/Claude"))
+  (subpath (string-append (param "HOME") "/Library/Saved Application State/com.anthropic.claude.savedState"))
+  (subpath (string-append (param "HOME") "/Library/HTTPStorages/com.anthropic.claude"))
+  (subpath (string-append (param "HOME") "/Library/HTTPStorages/com.anthropic.claudefordesktop"))
+  (subpath (string-append (param "HOME") "/Library/Containers/com.anthropic.claude"))
+  (subpath (string-append (param "HOME") "/Library/Group Containers"))
+)
+
+(allow file-write-create
+  (literal (string-append (param "HOME") "/Library/Caches"))
+)
