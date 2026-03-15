@@ -36,7 +36,8 @@ export PATH="$HOME/.local/bin:$PATH"
 
 The first time you run it, a `~/Claude-Sandbox` folder is created automatically. This is where you put any files you want Claude Desktop to work with.
 
-## Test It Works
+<details>
+<summary><strong>Test It Works</strong></summary>
 
 1. Launch Claude Desktop sandboxed: `./cd-sandbox`
 2. Ask Claude to read a file outside the sandbox:
@@ -47,7 +48,10 @@ The first time you run it, a `~/Claude-Sandbox` folder is created automatically.
    - Writing to `~/Claude-Sandbox/` → **works**
    - Writing anywhere else in `~/` → **blocked**
 
-## What It Allows
+</details>
+
+<details>
+<summary><strong>What It Allows</strong></summary>
 
 - **Your sandbox folder** (`~/Claude-Sandbox`) — full read and write access
 - **Claude's own app data** — its config files, caches, logs, and saved state. These are the `~/Library/` paths that Claude Desktop needs to function.
@@ -56,7 +60,10 @@ The first time you run it, a `~/Claude-Sandbox` folder is created automatically.
 - **System files** (`/System`, `/Library`, `/usr`, `/bin`, etc.)
 - **Full network access** — Claude needs this to talk to the API
 
-## What It Blocks
+</details>
+
+<details>
+<summary><strong>What It Blocks</strong></summary>
 
 Everything else in your home folder:
 
@@ -64,6 +71,8 @@ Everything else in your home folder:
 - `.ssh`, `.gnupg`, `.aws`, `.env`, `.zshrc`, `.bash_history`
 - Other apps' data in `~/Library/` (browser data, Mail, Messages, etc.)
 - Any folder in `~/` not listed above
+
+</details>
 
 <details>
 <summary><strong>How It Works</strong></summary>
@@ -116,13 +125,16 @@ log stream --predicate 'eventMessage contains "deny"' --style compact | grep -i 
 
 </details>
 
-## Uninstall
+<details>
+<summary><strong>Uninstall</strong></summary>
 
 ```bash
 ./uninstall.sh
 ```
 
 This removes the `cd-sandbox` command and its config. Your `~/Claude-Sandbox` folder is not removed as it's your project folder. To delete it, navigate to `~/Claude-Sandbox` and remove it manually after verifying you're no longer actively working in there.
+
+</details>
 
 ## License
 
