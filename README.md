@@ -9,21 +9,21 @@ This tool adds that second layer, at the operating system level, using Apple's b
 ## Quick Start
 
 ```bash
+# copy and paste this entire block into your terminal
+
+# download
 git clone https://github.com/Connagh/claude-desktop-sandbox-for-macos
 cd claude-desktop-sandbox-for-macos
-chmod +x claude-desktop-sandboxed install.sh uninstall.sh
+
+# install
+chmod +x claude-desktop-sandboxed install.sh
 ./install.sh
-```
 
-If your terminal doesn't recognise `claude-desktop-sandboxed` after installing, add this line to your `~/.zshrc` and restart your terminal:
+# add to PATH (only if not already there)
+grep -qxF 'export PATH="$HOME/.local/bin:$PATH"' ~/.zshrc || echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
 
-```bash
-export PATH="$HOME/.local/bin:$PATH"
-```
-
-Then launch Claude Desktop sandboxed:
-
-```bash
+# launch
 claude-desktop-sandboxed
 ```
 
@@ -125,10 +125,11 @@ log stream --predicate 'eventMessage contains "deny"' --style compact | grep -i 
 <summary><strong>Uninstall</strong></summary>
 
 ```bash
-./uninstall.sh
+rm -f ~/.local/bin/claude-desktop-sandboxed
+rm -rf ~/.local/share/claude-desktop-sandbox-for-macos
 ```
 
-This removes the `claude-desktop-sandboxed` command and its config. Your `~/Claude-Sandbox` folder is not removed as it's your project folder. To delete it, navigate to `~/Claude-Sandbox` and remove it manually after verifying you're no longer actively working in there.
+Your `~/Claude-Sandbox` folder is not removed as it may contain active projects. Delete this manually if you no longer need it.
 
 </details>
 
