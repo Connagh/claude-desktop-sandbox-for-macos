@@ -10,23 +10,10 @@ This tool wraps Claude Desktop in an OS-level sandbox using Apple's built-in `sa
 
 ## Quick Start
 
+Copy and paste this into your terminal:
+
 ```bash
-# copy and paste this entire block into your terminal
-
-# download
-git clone https://github.com/Connagh/claude-desktop-sandbox-for-macos
-cd claude-desktop-sandbox-for-macos
-
-# install
-chmod +x claude-desktop-sandboxed install.sh
-./install.sh
-
-# add to PATH (only if not already there)
-grep -qxF 'export PATH="$HOME/.local/bin:$PATH"' ~/.zshrc || echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
-source ~/.zshrc
-
-# launch
-claude-desktop-sandboxed
+git clone https://github.com/Connagh/claude-desktop-sandbox-for-macos && cd claude-desktop-sandbox-for-macos && chmod +x claude-desktop-sandboxed install.sh && ./install.sh && grep -qxF 'export PATH="$HOME/.local/bin:$PATH"' ~/.zshrc || echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc && claude-desktop-sandboxed
 ```
 
 A `~/Claude-Sandbox` folder is created on first launch. Put any files you want Claude to work with in there.
@@ -122,6 +109,13 @@ rm -rf ~/.local/share/claude-desktop-sandbox-for-macos
 ```
 
 Your `~/Claude-Sandbox` folder is not removed as it may contain active projects. Delete this manually if you no longer need it.
+
+</details>
+
+<details>
+<summary><strong>Update</strong></summary>
+
+Re-run the install block from Quick Start. It will overwrite the existing installation.
 
 </details>
 
