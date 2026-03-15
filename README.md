@@ -1,6 +1,6 @@
 # Claude Desktop Sandbox for macOS
 
-![Claude Desktop Sandbox](https://i.postimg.cc/FsVnxNkK/claude.gif)
+![Claude Desktop Sandbox](example.gif)
 
 Claude Desktop and its MCP servers have access to your system by default. There's no OS-level protection, so if a prompt injection tricks Claude into approving something, nothing stops it.
 
