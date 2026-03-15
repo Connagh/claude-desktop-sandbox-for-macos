@@ -1,10 +1,10 @@
 # Claude Desktop Sandbox for macOS
 
-Claude Desktop, and any MCP servers it runs, has access to your home folder by default. It has its own permission prompts, but those guardrails live inside the app itself. If a prompt injection were to bypass them, there's no second layer to fall back on.
+Claude Desktop and its MCP servers have access to your system by default. There's no OS-level protection, so if a prompt injection tricks Claude into approving something, nothing stops it.
 
-This tool adds that second layer, at the operating system level, using Apple's built-in sandbox. Even if Claude or an MCP server is tricked, macOS itself blocks the access. The app can **only** work inside a single folder: `~/Claude-Sandbox`. The rest of your system is off limits.
+This tool wraps Claude Desktop in an OS-level sandbox using Apple's built-in `sandbox-exec`. The app can **only** access `~/Claude-Sandbox`. Everything else is blocked by macOS itself.
 
-**Requirements:** macOS only. Uses Apple's built-in `sandbox-exec`. Claude Desktop must be installed at `/Applications/Claude.app`.
+**Requirements:** macOS. Claude Desktop installed at `/Applications/Claude.app`.
 
 ## Quick Start
 
@@ -27,67 +27,59 @@ source ~/.zshrc
 claude-desktop-sandboxed
 ```
 
-A `~/Claude-Sandbox` folder is created automatically on first launch. This is where you put any files you want Claude Desktop to work with.
+A `~/Claude-Sandbox` folder is created on first launch. Put any files you want Claude to work with in there.
 
-> **Important:** You must always launch Claude Desktop using `claude-desktop-sandboxed`. If you open the regular `Claude.app` from Finder or the Dock, the sandbox is not active and your files are not protected.
+> **Important:** Always launch using `claude-desktop-sandboxed`. Opening the regular `Claude.app` bypasses the sandbox.
 
 <details>
 <summary><strong>Test It Works</strong></summary>
 
-1. Launch Claude Desktop sandboxed: `claude-desktop-sandboxed`
-2. Ask Claude to read a file outside the sandbox:
-   - `cat ~/Documents/something.txt` → **should fail** (blocked)
-3. Ask Claude to read a file inside the sandbox:
-   - `cat ~/Claude-Sandbox/test.txt` → **should work** (allowed)
-4. Ask Claude to write a file:
-   - Writing to `~/Claude-Sandbox/` → **works**
-   - Writing anywhere else in `~/` → **blocked**
+1. Run `claude-desktop-sandboxed`
+2. Ask Claude to read `cat ~/Documents/something.txt` → **blocked**
+3. Ask Claude to read `cat ~/Claude-Sandbox/test.txt` → **allowed**
+4. Writing to `~/Claude-Sandbox/` → **works**
+5. Writing anywhere else → **blocked**
 
 </details>
 
 <details>
 <summary><strong>What It Allows</strong></summary>
 
-- **Your sandbox folder** (`~/Claude-Sandbox`) — full read and write access
-- **Claude's own app data** — its config files, caches, logs, and saved state. These are the `~/Library/` paths that Claude Desktop needs to function.
-- **Config files** (`~/.claude`, `~/.config`, `~/.gitconfig`)
-- **Keychain and Preferences** — needed for authentication and app settings
-- **System files** (`/System`, `/Library`, `/usr`, `/bin`, etc.)
-- **Full network access** — Claude needs this to talk to the API
+- `~/Claude-Sandbox`, full read and write
+- Claude's app data (`~/Library/` paths it needs to run)
+- Config files (`~/.claude`, `~/.config`, `~/.gitconfig`)
+- Keychain and Preferences (authentication and settings)
+- System files (`/System`, `/Library`, `/usr`, `/bin`, etc.)
+- Network access (required for the API)
 
 </details>
 
 <details>
 <summary><strong>What It Blocks</strong></summary>
 
-Everything else in your home folder:
-
-- Desktop, Downloads, Documents, Pictures, Music, Movies
-- `.ssh`, `.gnupg`, `.aws`, `.env`, `.zshrc`, `.bash_history`
-- Other apps' data in `~/Library/` (browser data, Mail, Messages, etc.)
-- Any folder in `~/` not listed above
+Everything else in your home folder: Desktop, Downloads, Documents, Pictures, `.ssh`, `.gnupg`, `.aws`, `.env`, `.zshrc`, `.bash_history`, other apps' data, and anything not listed above.
 
 </details>
 
 <details>
 <summary><strong>How It Works</strong></summary>
 
-The `claude-desktop-sandboxed` script launches Claude Desktop through macOS's `sandbox-exec` with a set of rules defined in `profile.sb`. From that point on, the operating system enforces the rules — the app literally cannot access files outside the allowed paths, regardless of what it tries to do.
+The script launches Claude Desktop through `sandbox-exec` with rules from `profile.sb`. macOS enforces these rules at the OS level. The app cannot access anything outside the allowed paths.
 
-Electron's built-in Chromium sandbox conflicts with `sandbox-exec`, so the launcher disables it. This is safe because the macOS sandbox replaces it with stronger, OS-level enforcement that the app cannot override.
+Electron's Chromium sandbox conflicts with `sandbox-exec`, so the launcher disables it. The macOS sandbox replaces it with stronger protection that the app cannot override.
 
 </details>
 
 <details>
 <summary><strong>Customising the Rules</strong></summary>
 
-If you need Claude Desktop to access an additional folder (for example, a project folder outside `~/Claude-Sandbox`), edit `profile.sb` and add your folder to both the read and write sections. Look for the existing `Claude-Sandbox` lines and add similar ones below them for your folder.
+To give Claude access to an additional folder, edit `profile.sb` and add your path to both the read and write sections. Look for the `Claude-Sandbox` lines and add similar ones for your folder.
 
-Then quit Claude Desktop and relaunch it with `claude-desktop-sandboxed`.
+Quit and relaunch with `claude-desktop-sandboxed` to apply changes.
 
 ### Seeing What's Being Blocked
 
-If something isn't working and you think the sandbox might be blocking it, watch the deny log in a second terminal:
+Watch the deny log in a second terminal:
 
 ```bash
 log stream --predicate 'eventMessage contains "deny"' --style compact | grep -i clau
@@ -102,22 +94,20 @@ log stream --predicate 'eventMessage contains "deny"' --style compact | grep -i 
 |---|---|---|
 | Cowork hangs on "Starting workspace" | VPN blocking Anthropic endpoints | Turn off VPN or whitelist Anthropic |
 | "account information is unavailable" | Same VPN issue | Same fix |
-| Startup errors (ComputerUseTcc, listMarketplaces, SetApplicationIsDaemon) | Normal Electron startup noise | Ignore |
-| Cowork preview "Failed to load local file" | Sandbox may block preview path | Check deny log, add path to profile |
+| Startup errors (ComputerUseTcc, listMarketplaces, etc.) | Normal Electron noise | Ignore |
+| Cowork preview "Failed to load local file" | Sandbox blocking preview path | Check deny log, add path to profile |
 
 </details>
 
 <details>
-<summary><strong>Limitations and Remaining Weaknesses</strong></summary>
+<summary><strong>Limitations</strong></summary>
 
-- **macOS only** — uses Apple's `sandbox-exec`
-- **Must launch from terminal** — opening the regular Claude.app from Finder or the Dock bypasses the sandbox
-- **MCP servers inherit the sandbox** — they can only access `~/Claude-Sandbox`. If an MCP server needs access to other folders, add the paths to `profile.sb`
-- **`~/.config` is broadly allowed** — this folder may contain tokens from other apps like GitHub CLI or VS Code
-- **`~/Library/Preferences`** — contains settings for all apps, not just Claude, but is needed for the app to run
-- **`~/Library/Keychains`** — needed for authentication but is sensitive
-- **`~/Library/Group Containers`** — shared data used by app groups (Safari extensions, etc.), but needed for Claude to run
-- **Network is unrestricted** — Claude needs internet access to work, so network requests aren't blocked
+- **macOS only.** Uses Apple's `sandbox-exec`
+- **Must launch from terminal.** Opening regular Claude.app bypasses the sandbox
+- **MCP servers inherit the sandbox.** They can only access `~/Claude-Sandbox`. Add extra paths to `profile.sb` if needed
+- **`~/.config` is broadly allowed.** May contain tokens from other tools (GitHub CLI, VS Code, etc.)
+- **`~/Library/Preferences`**, **`~/Library/Keychains`**, and **`~/Library/Group Containers`** are accessible because Claude needs them to run
+- **Network is unrestricted.** Required for API access
 
 </details>
 
