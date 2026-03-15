@@ -2,44 +2,26 @@
 
 Claude Desktop, and any MCP servers it runs, has access to your home folder by default. It has its own permission prompts, but those guardrails live inside the app itself. If a prompt injection were to bypass them, there's no second layer to fall back on.
 
-This tool adds that second layer, at the operating system level, using Apple's built-in sandbox. Even if Claude or an MCP server is tricked, macOS itself blocks the access. The app can **only** work inside a single folder: `~/Claude-Sandbox`. The rest of your system is off limits. You launch it by running `cd-sandbox` in your terminal instead of opening Claude from your Dock.
-
-> **You must always launch Claude Desktop from the terminal using `cd-sandbox`.** If you open it from Finder, the Dock, or Spotlight, the sandbox is not active and your files are not protected.
+This tool adds that second layer, at the operating system level, using Apple's built-in sandbox. Even if Claude or an MCP server is tricked, macOS itself blocks the access. The app can **only** work inside a single folder: `~/Claude-Sandbox`. The rest of your system is off limits.
 
 **Requirements:** macOS only. Uses Apple's built-in `sandbox-exec`. Claude Desktop must be installed at `/Applications/Claude.app`.
 
 ## Quick Start
 
-```bash
-git clone https://github.com/Connagh/claude-desktop-sandbox-for-macos
-cd claude-desktop-sandbox-for-macos
-chmod +x cd-sandbox install.sh uninstall.sh
-```
+1. [Download the repo](https://github.com/Connagh/claude-desktop-sandbox-for-macos)
+2. Move `Claude Desktop Sandboxed.app` to `/Applications`
+3. Open it — Claude Desktop launches sandboxed automatically
 
-You can run it straight away:
+Use this instead of the regular Claude.app. Drag it to your Dock for quick access.
 
-```bash
-./cd-sandbox
-```
+A `~/Claude-Sandbox` folder is created automatically on first launch. This is where you put any files you want Claude Desktop to work with.
 
-Or install it so the `cd-sandbox` command works from any folder:
-
-```bash
-./install.sh
-```
-
-If your terminal doesn't recognise `cd-sandbox` after installing, add this line to your `~/.zshrc` and restart your terminal:
-
-```bash
-export PATH="$HOME/.local/bin:$PATH"
-```
-
-The first time you run it, a `~/Claude-Sandbox` folder is created automatically. This is where you put any files you want Claude Desktop to work with.
+> **Important:** You must always open Claude Desktop using `Claude Desktop Sandboxed.app`. If you open the regular `Claude.app` from Finder or the Dock, the sandbox is not active and your files are not protected.
 
 <details>
 <summary><strong>Test It Works</strong></summary>
 
-1. Launch Claude Desktop sandboxed: `./cd-sandbox`
+1. Open `Claude Desktop Sandboxed.app`
 2. Ask Claude to read a file outside the sandbox:
    - `cat ~/Documents/something.txt` → **should fail** (blocked)
 3. Ask Claude to read a file inside the sandbox:
@@ -77,7 +59,7 @@ Everything else in your home folder:
 <details>
 <summary><strong>How It Works</strong></summary>
 
-The `cd-sandbox` script launches Claude Desktop through macOS's `sandbox-exec` with a set of rules defined in `profile.sb`. From that point on, the operating system enforces the rules — the app literally cannot access files outside the allowed paths, regardless of what it tries to do.
+The app launches Claude Desktop through macOS's `sandbox-exec` with a set of rules defined in `profile.sb` (bundled inside the app). From that point on, the operating system enforces the rules — the app literally cannot access files outside the allowed paths, regardless of what it tries to do.
 
 Electron's built-in Chromium sandbox conflicts with `sandbox-exec`, so the launcher disables it. This is safe because the macOS sandbox replaces it with stronger, OS-level enforcement that the app cannot override.
 
@@ -86,9 +68,15 @@ Electron's built-in Chromium sandbox conflicts with `sandbox-exec`, so the launc
 <details>
 <summary><strong>Customising the Rules</strong></summary>
 
-If you need Claude Desktop to access an additional folder (for example, a project folder outside `~/Claude-Sandbox`), edit `profile.sb` and add your folder to both the read and write sections. Look for the existing `Claude-Sandbox` lines and add similar ones below them for your folder.
+If you need Claude Desktop to access an additional folder (for example, a project folder outside `~/Claude-Sandbox`), edit `profile.sb` inside the app bundle and add your folder to both the read and write sections. Look for the existing `Claude-Sandbox` lines and add similar ones below them for your folder.
 
-Then quit Claude Desktop and relaunch it with `cd-sandbox`.
+To edit the bundled profile:
+
+```bash
+open "Claude Desktop Sandboxed.app/Contents/Resources/profile.sb"
+```
+
+Then quit and reopen the app.
 
 ### Seeing What's Being Blocked
 
@@ -116,11 +104,12 @@ log stream --predicate 'eventMessage contains "deny"' --style compact | grep -i 
 <summary><strong>Limitations and Remaining Weaknesses</strong></summary>
 
 - **macOS only** — uses Apple's `sandbox-exec`
-- **Must launch from terminal** — opening Claude from Finder or the Dock bypasses the sandbox entirely
+- **Must use the sandboxed app** — opening the regular Claude.app bypasses the sandbox
 - **MCP servers inherit the sandbox** — they can only access `~/Claude-Sandbox`. If an MCP server needs access to other folders, add the paths to `profile.sb`
 - **`~/.config` is broadly allowed** — this folder may contain tokens from other apps like GitHub CLI or VS Code
 - **`~/Library/Preferences`** — contains settings for all apps, not just Claude, but is needed for the app to run
 - **`~/Library/Keychains`** — needed for authentication but is sensitive
+- **`~/Library/Group Containers`** — shared data used by app groups (Safari extensions, etc.), but needed for Claude to run
 - **Network is unrestricted** — Claude needs internet access to work, so network requests aren't blocked
 
 </details>
@@ -128,11 +117,7 @@ log stream --predicate 'eventMessage contains "deny"' --style compact | grep -i 
 <details>
 <summary><strong>Uninstall</strong></summary>
 
-```bash
-./uninstall.sh
-```
-
-This removes the `cd-sandbox` command and its config. Your `~/Claude-Sandbox` folder is not removed as it's your project folder. To delete it, navigate to `~/Claude-Sandbox` and remove it manually after verifying you're no longer actively working in there.
+Delete `Claude Desktop Sandboxed.app` from `/Applications`. Your `~/Claude-Sandbox` folder is not affected.
 
 </details>
 
