@@ -10,6 +10,10 @@ PROFILE="${SCRIPT_DIR}/profile.sb"
 APP="/Applications/Claude.app/Contents/MacOS/Claude"
 SANDBOX_DIR="$HOME/Claude-Sandbox"
 
+# terminal colours
+GREEN='\033[1;32m'
+RESET='\033[0m'
+
 if [[ ! -f "$PROFILE" ]]; then
   echo "Error: profile.sb not found at $PROFILE" >&2
   exit 1
@@ -23,9 +27,25 @@ fi
 
 mkdir -p "$SANDBOX_DIR"
 
-echo "Launching Claude Desktop (sandboxed — ~/Claude-Sandbox only)"
-echo "  Workspace: $SANDBOX_DIR"
+echo -e "${GREEN}Claude Desktop launched (sandboxed to ~/Claude-Sandbox)${RESET}"
 echo ""
 
+# monitor sandbox deny logs in the background
+log stream --predicate 'eventMessage contains "deny"' --style compact 2>/dev/null | \
+  grep --line-buffered -i "claude" | \
+  while IFS= read -r line; do
+    echo -e "${GREEN}Blocked: ${RESET}$line"
+  done &
+LOG_PID=$!
+
+# clean up log monitor when done
+cleanup() {
+  kill "$LOG_PID" 2>/dev/null
+  wait "$LOG_PID" 2>/dev/null
+  echo ""
+  echo -e "${GREEN}Claude Desktop closed. Sandbox session ended.${RESET}"
+}
+trap cleanup EXIT
+
 cd "$SANDBOX_DIR"
-exec sandbox-exec -f "$PROFILE" -D "HOME=$HOME" "$APP" --no-sandbox
+sandbox-exec -f "$PROFILE" -D "HOME=$HOME" "$APP" --no-sandbox 2>/dev/null
