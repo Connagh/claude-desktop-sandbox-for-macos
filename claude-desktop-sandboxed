@@ -30,11 +30,11 @@ mkdir -p "$SANDBOX_DIR"
 echo -e "${GREEN}Claude Desktop launched (sandboxed to ~/Claude-Sandbox)${RESET}"
 echo ""
 
-# monitor sandbox deny logs in the background
+# monitor sandbox deny logs in the background, show only the blocked path
 log stream --predicate 'eventMessage contains "deny"' --style compact 2>/dev/null | \
-  grep --line-buffered -i "claude" | \
+  grep --line-buffered -oE 'deny\(1\) [a-z-]+ /[^ ]+' | \
   while IFS= read -r line; do
-    echo -e "${GREEN}Blocked: ${RESET}$line"
+    echo -e "${GREEN}Blocked:${RESET} $line"
   done &
 LOG_PID=$!
 

@@ -13,7 +13,7 @@ This tool wraps Claude Desktop in an OS-level sandbox using Apple's built-in `sa
 Copy and paste this into your terminal:
 
 ```bash
-git clone https://github.com/Connagh/claude-desktop-sandbox-for-macos && cd claude-desktop-sandbox-for-macos && chmod +x claude-desktop-sandboxed install.sh && ./install.sh && grep -qxF 'export PATH="$HOME/.local/bin:$PATH"' ~/.zshrc || echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc && claude-desktop-sandboxed
+cd ~ && rm -rf claude-desktop-sandbox-for-macos && git clone https://github.com/Connagh/claude-desktop-sandbox-for-macos && cd claude-desktop-sandbox-for-macos && chmod +x claude-desktop-sandboxed install.sh && ./install.sh && cd ~ && grep -qxF 'export PATH="$HOME/.local/bin:$PATH"' ~/.zshrc || echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc && claude-desktop-sandboxed
 ```
 
 A `~/Claude-Sandbox` folder is created on first launch. Put any files you want Claude to work with in there.
