@@ -27,4 +27,5 @@ echo "Launching Claude Desktop (sandboxed — ~/Claude-Sandbox only)"
 echo "  Workspace: $SANDBOX_DIR"
 echo ""
 
+cd "$SANDBOX_DIR"
 exec sandbox-exec -f "$PROFILE" -D "HOME=$HOME" "$APP" --no-sandbox
