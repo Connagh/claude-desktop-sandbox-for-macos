@@ -65,13 +65,17 @@ Everything else in your home folder:
 - Other apps' data in `~/Library/` (browser data, Mail, Messages, etc.)
 - Any folder in `~/` not listed above
 
-## How It Works
+<details>
+<summary><strong>How It Works</strong></summary>
 
 The `cd-seatbelt` script launches Claude Desktop through macOS's `sandbox-exec` with a set of rules defined in `profile.sb`. From that point on, the operating system enforces the rules — the app literally cannot access files outside the allowed paths, regardless of what it tries to do.
 
 Electron's built-in Chromium sandbox conflicts with `sandbox-exec`, so the launcher disables it. This is safe because the macOS sandbox replaces it with stronger, OS-level enforcement that the app cannot override.
 
-## Customizing the Rules
+</details>
+
+<details>
+<summary><strong>Customising the Rules</strong></summary>
 
 If you need Claude Desktop to access an additional folder (for example, a project folder outside `~/Claude-Sandbox`), edit `profile.sb` and add your folder to both the read and write sections. Look for the existing `Claude-Sandbox` lines and add similar ones below them for your folder.
 
@@ -85,7 +89,10 @@ If something isn't working and you think the sandbox might be blocking it, watch
 log stream --predicate 'eventMessage contains "deny"' --style compact | grep -i clau
 ```
 
-## Known Issues
+</details>
+
+<details>
+<summary><strong>Known Issues</strong></summary>
 
 | Issue | Cause | Fix |
 |---|---|---|
@@ -94,7 +101,10 @@ log stream --predicate 'eventMessage contains "deny"' --style compact | grep -i 
 | Startup errors (ComputerUseTcc, listMarketplaces, SetApplicationIsDaemon) | Normal Electron startup noise | Ignore |
 | Cowork preview "Failed to load local file" | Sandbox may block preview path | Check deny log, add path to profile |
 
-## Limitations and Remaining Weaknesses
+</details>
+
+<details>
+<summary><strong>Limitations and Remaining Weaknesses</strong></summary>
 
 - **macOS only** — uses Apple's `sandbox-exec`
 - **Must launch from terminal** — opening Claude from Finder or the Dock bypasses the sandbox entirely
@@ -104,13 +114,15 @@ log stream --predicate 'eventMessage contains "deny"' --style compact | grep -i 
 - **`~/Library/Keychains`** — needed for authentication but is sensitive
 - **Network is unrestricted** — Claude needs internet access to work, so network requests aren't blocked
 
+</details>
+
 ## Uninstall
 
 ```bash
 ./uninstall.sh
 ```
 
-This removes the `cd-seatbelt` command and its config. Your `~/Claude-Sandbox` folder is not deleted — remove it manually if you want.
+This removes the `cd-seatbelt` command and its config. Your `~/Claude-Sandbox` folder is not removed as it's your project folder. To delete it, navigate to `~/Claude-Sandbox` and remove it manually after verifying you're no longer actively working in there.
 
 ## License
 
