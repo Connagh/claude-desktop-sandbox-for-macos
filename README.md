@@ -2,9 +2,9 @@
 
 Claude Desktop, and any MCP servers it runs, has access to your home folder by default. It has its own permission prompts, but those guardrails live inside the app itself. If a prompt injection were to bypass them, there's no second layer to fall back on.
 
-This tool adds that second layer, at the operating system level, using Apple's built-in sandbox. Even if Claude or an MCP server is tricked, macOS itself blocks the access. The app can **only** work inside a single folder: `~/Claude-Sandbox`. The rest of your system is off limits. You launch it by running `cd-seatbelt` in your terminal instead of opening Claude from your Dock.
+This tool adds that second layer, at the operating system level, using Apple's built-in sandbox. Even if Claude or an MCP server is tricked, macOS itself blocks the access. The app can **only** work inside a single folder: `~/Claude-Sandbox`. The rest of your system is off limits. You launch it by running `cd-sandbox` in your terminal instead of opening Claude from your Dock.
 
-> **You must always launch Claude Desktop from the terminal using `cd-seatbelt`.** If you open it from Finder, the Dock, or Spotlight, the sandbox is not active and your files are not protected.
+> **You must always launch Claude Desktop from the terminal using `cd-sandbox`.** If you open it from Finder, the Dock, or Spotlight, the sandbox is not active and your files are not protected.
 
 **Requirements:** macOS only. Uses Apple's built-in `sandbox-exec`. Claude Desktop must be installed at `/Applications/Claude.app`.
 
@@ -13,22 +13,22 @@ This tool adds that second layer, at the operating system level, using Apple's b
 ```bash
 git clone https://github.com/Connagh/claude-desktop-sandbox-for-macos
 cd claude-desktop-sandbox-for-macos
-chmod +x cd-seatbelt install.sh uninstall.sh
+chmod +x cd-sandbox install.sh uninstall.sh
 ```
 
 You can run it straight away:
 
 ```bash
-./cd-seatbelt
+./cd-sandbox
 ```
 
-Or install it so the `cd-seatbelt` command works from any folder:
+Or install it so the `cd-sandbox` command works from any folder:
 
 ```bash
 ./install.sh
 ```
 
-If your terminal doesn't recognise `cd-seatbelt` after installing, add this line to your `~/.zshrc` and restart your terminal:
+If your terminal doesn't recognise `cd-sandbox` after installing, add this line to your `~/.zshrc` and restart your terminal:
 
 ```bash
 export PATH="$HOME/.local/bin:$PATH"
@@ -38,7 +38,7 @@ The first time you run it, a `~/Claude-Sandbox` folder is created automatically.
 
 ## Test It Works
 
-1. Launch Claude Desktop sandboxed: `./cd-seatbelt`
+1. Launch Claude Desktop sandboxed: `./cd-sandbox`
 2. Ask Claude to read a file outside the sandbox:
    - `cat ~/Documents/something.txt` → **should fail** (blocked)
 3. Ask Claude to read a file inside the sandbox:
@@ -68,7 +68,7 @@ Everything else in your home folder:
 <details>
 <summary><strong>How It Works</strong></summary>
 
-The `cd-seatbelt` script launches Claude Desktop through macOS's `sandbox-exec` with a set of rules defined in `profile.sb`. From that point on, the operating system enforces the rules — the app literally cannot access files outside the allowed paths, regardless of what it tries to do.
+The `cd-sandbox` script launches Claude Desktop through macOS's `sandbox-exec` with a set of rules defined in `profile.sb`. From that point on, the operating system enforces the rules — the app literally cannot access files outside the allowed paths, regardless of what it tries to do.
 
 Electron's built-in Chromium sandbox conflicts with `sandbox-exec`, so the launcher disables it. This is safe because the macOS sandbox replaces it with stronger, OS-level enforcement that the app cannot override.
 
@@ -79,7 +79,7 @@ Electron's built-in Chromium sandbox conflicts with `sandbox-exec`, so the launc
 
 If you need Claude Desktop to access an additional folder (for example, a project folder outside `~/Claude-Sandbox`), edit `profile.sb` and add your folder to both the read and write sections. Look for the existing `Claude-Sandbox` lines and add similar ones below them for your folder.
 
-Then quit Claude Desktop and relaunch it with `cd-seatbelt`.
+Then quit Claude Desktop and relaunch it with `cd-sandbox`.
 
 ### Seeing What's Being Blocked
 
@@ -122,7 +122,7 @@ log stream --predicate 'eventMessage contains "deny"' --style compact | grep -i 
 ./uninstall.sh
 ```
 
-This removes the `cd-seatbelt` command and its config. Your `~/Claude-Sandbox` folder is not removed as it's your project folder. To delete it, navigate to `~/Claude-Sandbox` and remove it manually after verifying you're no longer actively working in there.
+This removes the `cd-sandbox` command and its config. Your `~/Claude-Sandbox` folder is not removed as it's your project folder. To delete it, navigate to `~/Claude-Sandbox` and remove it manually after verifying you're no longer actively working in there.
 
 ## License
 

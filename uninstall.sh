@@ -3,7 +3,7 @@ set -euo pipefail
 
 PREFIX="${PREFIX:-$HOME/.local}"
 echo "Removing claude-desktop-sandbox-for-macos..."
-rm -f "$PREFIX/bin/cd-seatbelt"
+rm -f "$PREFIX/bin/cd-sandbox"
 rm -rf "$PREFIX/share/claude-desktop-sandbox-for-macos"
 echo "Done."
 echo ""

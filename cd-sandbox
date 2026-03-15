@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ============================================================================
-# cd-seatbelt — launch Claude Desktop inside a macOS seatbelt sandbox
+# cd-sandbox — launch Claude Desktop inside a macOS seatbelt sandbox
 # ============================================================================
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
